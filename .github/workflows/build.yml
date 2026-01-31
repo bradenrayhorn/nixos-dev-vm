@@ -8,6 +8,7 @@ on:
       - flake.nix
       - flake.lock
       - configuration.nix
+      - .github/workflows/build.yml
 
 permissions:
   contents: write
