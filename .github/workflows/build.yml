@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Install Nix
         run: |
@@ -27,7 +27,7 @@ jobs:
       - name: Generate version number
         id: version
         run: |
-          VERSION=$(date +'%y.%m').$(( ${{ github.run_number }} + 15 ))
+          VERSION=$(date +'%y.%m').${{ github.run_number }}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build ISO
