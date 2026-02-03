@@ -81,6 +81,9 @@
                   ${pkgs.util-linux}/bin/mkswap -L swap ''${DISK}2
                   ${pkgs.e2fsprogs}/bin/mkfs.ext4 -L nixos ''${DISK}3
 
+                  echo "Wait..."
+                  sleep 5
+
                   echo "Mounting file systems..."
                   mount /dev/disk/by-label/nixos /mnt
                   mkdir -p /mnt/boot
@@ -92,6 +95,7 @@
                   cp -r /etc/nixos-config/* /mnt/etc/nixos/
                   chmod -R 775 /mnt/etc/nixos
                   chown -R root:wheel /mnt/etc/nixos
+                  chmod g+s /mnt/etc/nixos
 
                   echo "Installing NixOS..."
                   nixos-install --flake /mnt/etc/nixos#default

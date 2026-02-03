@@ -18,15 +18,12 @@
   services.openssh = {
     enable = true;
     settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+
+      AllowUsers = [ "braden" ];
       AllowAgentForwarding = true;
-    };
-  };
-  networking.hostName = "nixdev";
-  services.avahi = {
-    enable = true;
-    publish = {
-      enable = true;
-      addresses = true;
     };
   };
 
