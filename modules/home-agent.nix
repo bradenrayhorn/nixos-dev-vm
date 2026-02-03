@@ -5,7 +5,7 @@
     ./home-manager/git.nix
     ./home-manager/tmux.nix
     ./home-manager/zsh.nix
-    ./home-manager/agent.nix
+    ./home-manager/pi-agent/pi.nix
   ];
 
   home.username = "agent";

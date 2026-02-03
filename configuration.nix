@@ -87,7 +87,7 @@
   users.defaultUserShell = pkgs.zsh;
 
   # gc
-  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.systemd-boot.configurationLimit = 6;
   nix.gc = {
     automatic = true;
     dates = "weekly";
