@@ -86,6 +86,9 @@
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
 
+  # time
+  time.timeZone = "America/Chicago";
+
   # gc
   boot.loader.systemd-boot.configurationLimit = 6;
   nix.gc = {
@@ -97,6 +100,7 @@
   # user setup
   users.groups.braden = { };
   users.groups.agent = { };
+  users.groups.dev = { };
 
   users.users.braden = {
     isNormalUser = true;
@@ -105,6 +109,7 @@
     group = "braden";
     extraGroups = [
       "agent"
+      "dev"
       "wheel"
     ];
     openssh.authorizedKeys.keys = [
@@ -116,8 +121,15 @@
     home = "/home/agent";
     createHome = true;
     group = "agent";
+    extraGroups = [ "dev" ];
     homeMode = "770";
   };
+
+  # working directories
+  systemd.tmpfiles.rules = [
+    "d /var/git 2770 braden dev -"
+    "d /var/gw  2770 braden dev -"
+  ];
 
   system.stateVersion = "25.11";
 }
