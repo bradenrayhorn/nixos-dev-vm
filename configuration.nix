@@ -7,6 +7,7 @@
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
+    ./modules/flakes-setup.nix
   ];
 
   nix.settings.experimental-features = [
@@ -129,7 +130,16 @@
   systemd.tmpfiles.rules = [
     "d /var/git 2770 braden dev -"
     "d /var/gw  2770 braden dev -"
+
+    "d /var/gradle  2770 braden dev -"
   ];
+
+  # docker
+  virtualisation.docker.enable = true;
+  virtualisation.docker.rootless = {
+    enable = true;
+    setSocketVariable = true;
+  };
 
   system.stateVersion = "25.11";
 }

@@ -12,6 +12,10 @@
   home.username = "braden";
   home.homeDirectory = "/home/braden";
 
+  home.sessionVariables = {
+    GRADLE_USER_HOME = "/var/gradle";
+  };
+
   home.packages = import ./common-packages.nix pkgs;
 
   home.stateVersion = "25.11";
