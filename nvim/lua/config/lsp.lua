@@ -92,4 +92,5 @@ vim.lsp.enable("eslint")
 vim.lsp.enable("svelte")
 vim.lsp.enable("cssls")
 vim.lsp.enable("css_variables")
-vim.lsp.enable("kotlin-lsp")
+
+vim.lsp.enable("kotlin_lsp")

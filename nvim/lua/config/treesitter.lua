@@ -28,6 +28,8 @@ local ensureInstalled = {
 	-- iac
 	"helm",
 	"terraform",
+	-- kotlin/jvm
+	"kotlin",
 }
 
 -- Install all required parsers

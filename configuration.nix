@@ -15,6 +15,8 @@
     "flakes"
   ];
 
+  programs.nix-ld.enable = true;
+
   # ssh
   services.openssh = {
     enable = true;
