@@ -88,17 +88,19 @@
     '')
     (pkgs.writeShellScriptBin "nx-init" ''
       set -e
-      if [ "$(id -u)" -ne 0 ]; then
-        echo >&2 "error: script must be run with sudo"
+      if [ "$(id -u)" -eq 0 ]; then
+        echo >&2 "error: do not run script with sudo"
         exit 1
       fi
 
-      rm -rf /etc/nixos/*(N) /etc/nixos/.*(N)
+      shopt -s nullglob dotglob
+      sudo rm -rf /etc/nixos/*
+
       mkdir -p /var/git/bradenrayhorn
       mkdir -p /var/gw/main/bradenrayhorn
-      (cd /var/git/bradenrayhorn && git clone --bare git@github.com:bradenrayhorn/nixos-dev-vm.git)
-      (cd /var/git/bradenrayhorn/nixos-dev-vm.git && git worktree add /var/gw/main/bradenrayhorn/nixos-dev-vm main)
-      echo "Run: nx-rebuild"
+      echo "(cd /var/git/bradenrayhorn && git clone --bare git@github.com:bradenrayhorn/nixos-dev-vm.git)"
+      echo "(cd /var/git/bradenrayhorn/nixos-dev-vm.git && git worktree add /var/gw/main/bradenrayhorn/nixos-dev-vm main)"
+      echo "nx-rebuild"
     '')
   ];
 

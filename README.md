@@ -11,5 +11,5 @@ On MacOS host.
     1. Switch to "Emulated VLAN" networking, port forward Host 127.0.0.1:5222 to guest :22
     2. Remove Boot USB ISO drive
     3. Remove Display device
-7. Launch VM again, SSH in, and run `sudo nx-init` to setup repo
+7. Launch VM again, SSH in, and run `nx-init` to setup repo
 
