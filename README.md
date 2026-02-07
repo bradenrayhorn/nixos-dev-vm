@@ -4,9 +4,12 @@ On MacOS host.
 
 1. Install UTM.
 2. Download ISO.
-3. Configure and launch VM with QEMU.
-4. Setup networking as "Emulated VLAN", port forward Host 127.0.0.1:5222 to guest :22
-5. On startup, run `sudo system-install`
-6. Shutdown and eject ISO.
-7. Launch VM and SSH in.
+3. Launch VM with QEMU default settings
+4. On startup, run `sudo nx-install`.
+5. After complete, shutdown: `sudo shutdown now`.
+6. Reconfigure QEMU:
+    1. Switch to "Emulated VLAN" networking, port forward Host 127.0.0.1:5222 to guest :22
+    2. Remove Boot USB ISO drive
+    3. Remove Display device
+7. Launch VM again, SSH in, and run `sudo nx-init` to setup repo
 
