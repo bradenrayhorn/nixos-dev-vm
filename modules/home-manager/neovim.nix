@@ -58,7 +58,7 @@ in
 {
   xdg.configFile = {
     nvim = {
-      source = config.lib.file.mkOutOfStoreSymlink "/var/gw/main/nixos-dev-vm/nvim";
+      source = config.lib.file.mkOutOfStoreSymlink "/var/gw/main/bradenrayhorn/nixos-dev-vm/nvim";
     };
   };
 

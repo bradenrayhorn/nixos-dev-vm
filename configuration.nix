@@ -77,11 +77,21 @@
     ghostty
     (pkgs.writeShellScriptBin "nx-rebuild" ''
       set -e
-      nixos-rebuild switch --flake /var/gw/main/nixos-dev-vm#default
+      if [ "$(id -u)" -ne 0 ]; then
+        echo >&2 "error: script must be run with sudo"
+        exit 1
+      fi
+
+      nixos-rebuild switch --flake /var/gw/main/bradenrayhorn/nixos-dev-vm#default
     '')
     (pkgs.writeShellScriptBin "nx-init" ''
       set -e
-      rm -r /etc/nixos/* /etc/nixos/.*
+      if [ "$(id -u)" -ne 0 ]; then
+        echo >&2 "error: script must be run with sudo"
+        exit 1
+      fi
+
+      rm -rf /etc/nixos/*(N) /etc/nixos/.*(N)
       mkdir -p /var/git/bradenrayhorn
       mkdir -p /var/gw/main/bradenrayhorn
       (cd /var/git/bradenrayhorn && git clone --bare git@github.com:bradenrayhorn/nixos-dev-vm.git)
