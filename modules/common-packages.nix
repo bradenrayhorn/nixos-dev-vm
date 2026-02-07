@@ -3,7 +3,7 @@ pkgs: with pkgs; [
   jq
   curl
   fzf
+  gum
 
-  go
   gcc
 ]
