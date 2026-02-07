@@ -2,7 +2,10 @@
 
 g() {
   local cmd=$1
-  shift
+
+  if [ "$#" -gt 0 ]; then
+    shift
+  fi
 
   case "$cmd" in
     clone)
