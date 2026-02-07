@@ -1,0 +1,4 @@
+{ ... }:
+{
+  profiles.kotlin.enable = true;
+}

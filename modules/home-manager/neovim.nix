@@ -1,6 +1,8 @@
 {
   config,
   pkgs,
+  osConfig,
+  lib,
   ...
 }:
 let
@@ -64,24 +66,27 @@ in
 
   programs.neovim = {
     enable = true;
-    extraPackages = with pkgs; [
-      kotlin-lsp
+    extraPackages =
+      with pkgs;
+      [
+        tree-sitter
+        eslint
+        gopls
+        nil
+        svelte-language-server
+        typescript
+        nodejs_24
+        vtsls
+        typescript-language-server
+        vscode-langservers-extracted
 
-      tree-sitter
-      eslint
-      gopls
-      nil
-      svelte-language-server
-      typescript
-      nodejs_24
-      vtsls
-      typescript-language-server
-      vscode-langservers-extracted
-
-      # format
-      nixfmt-rfc-style
-      prettierd
-      stylua
-    ];
+        # format
+        nixfmt-rfc-style
+        prettierd
+        stylua
+      ]
+      ++ lib.optionals osConfig.profiles.kotlin.enable [
+        kotlin-lsp
+      ];
   };
 }

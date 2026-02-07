@@ -8,7 +8,9 @@
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
     ./modules/flakes-setup.nix
-  ];
+    ./profiles.nix
+  ]
+  ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
 
   nix.settings.experimental-features = [
     "nix-command"

@@ -28,9 +28,11 @@ local ensureInstalled = {
 	-- iac
 	"helm",
 	"terraform",
-	-- kotlin/jvm
-	"kotlin",
 }
+
+if vim.env.KOTLIN_LSP_ENABLED == "1" then
+	table.insert(ensureInstalled, "kotlin")
+end
 
 -- Install all required parsers
 local alreadyInstalled = require("nvim-treesitter.config").get_installed()
