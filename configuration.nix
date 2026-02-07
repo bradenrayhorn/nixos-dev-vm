@@ -75,9 +75,18 @@
   environment.systemPackages = with pkgs; [
     vim
     ghostty
-    (pkgs.writeShellScriptBin "rebuild-system" ''
+    (pkgs.writeShellScriptBin "nx-rebuild" ''
       set -e
-      nixos-rebuild switch --flake /etc/nixos#default
+      nixos-rebuild switch --flake /var/gw/main/nixos-dev-vm#default
+    '')
+    (pkgs.writeShellScriptBin "nx-init" ''
+      set -e
+      rm -r /etc/nixos/* /etc/nixos/.*
+      mkdir -p /var/git/bradenrayhorn
+      mkdir -p /var/gw/main/bradenrayhorn
+      (cd /var/git/bradenrayhorn && git clone --bare git@github.com:bradenrayhorn/nixos-dev-vm.git)
+      (cd /var/git/bradenrayhorn/nixos-dev-vm.git && git worktree add /var/gw/main/bradenrayhorn/nixos-dev-vm main)
+      echo "Run: nx-rebuild"
     '')
   ];
 

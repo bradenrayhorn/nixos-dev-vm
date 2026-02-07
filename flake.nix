@@ -56,7 +56,7 @@
 
               # copy script to format drives
               environment.systemPackages = [
-                (pkgs.writeShellScriptBin "install-system" ''
+                (pkgs.writeShellScriptBin "nx-install" ''
                   set -e
 
                   DISK=''${1:-/dev/vda}
