@@ -16,6 +16,7 @@ let
       # bind repo in the workspace
       sudo chown -R agent:dev $ws_repo_path
       BOUND_WORKSPACE_DIRS+=(--bind "$ws_repo_path" "$ws_repo_path")
+      BOUND_WORKSPACE_DIRS+=(--ro-bind "$ws_repo_path/.git" "$ws_repo_path/.git")
       BOUND_DIRS+=($ws_repo_path)
 
       # read-only bind the git directory
@@ -121,6 +122,7 @@ let
       --ro-bind /home/agent/.zshrc /home/agent/.zshrc \
       --ro-bind /home/agent/.zshenv /home/agent/.zshenv \
       --ro-bind /home/agent/.config /home/agent/.config \
+      --ro-bind /home/agent/.pi/agent/auth.json /home/agent/.pi/agent/auth.json \
       --bind "$SOCKET_PATH" "/run/proxy.sock" \
       "''${BOUND_WORKSPACE_DIRS[@]}" \
       --clearenv \
