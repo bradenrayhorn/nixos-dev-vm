@@ -169,7 +169,7 @@ g() {
       local paths_arg=$(echo "$selected" | tr '\n' ' ')
 
       echo "Launching agent..."
-      spawn-agent $=paths_arg
+      spawn-agent $PWD $=paths_arg
       ;;
 
     *)

@@ -7,7 +7,9 @@
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
-    ./modules/flakes-setup.nix
+    ./modules/setup-data.nix
+    ./modules/setup-flakes.nix
+    ./modules/agent-proxy.nix
     ./profiles.nix
   ]
   ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
@@ -155,6 +157,7 @@
   systemd.tmpfiles.rules = [
     "d /var/git 2770 braden dev -"
     "d /var/gw  2770 braden dev -"
+    "d /var/agents  2770 agent dev -"
 
     "d /var/gradle  2770 braden dev -"
   ];

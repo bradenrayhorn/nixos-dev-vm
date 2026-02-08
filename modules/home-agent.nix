@@ -3,7 +3,7 @@
 {
   imports = [
     ./home-manager/git.nix
-    ./home-manager/tmux.nix
+    ./home-manager/tmux-agent.nix
     ./home-manager/zsh.nix
     ./home-manager/pi-agent/pi.nix
   ];
