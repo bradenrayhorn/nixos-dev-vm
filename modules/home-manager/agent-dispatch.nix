@@ -102,7 +102,7 @@ let
     cd "$WORKING_DIR"
 
     AGENT_UID=$(id -u agent)
-    AGENT_GID=$(id -g dev)
+    AGENT_GID=$(getent group dev | cut -d: -f3)
 
     sudo -u agent ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-all \

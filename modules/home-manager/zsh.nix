@@ -8,6 +8,7 @@
     enable = true;
     initContent = lib.mkOrder 1000 ''
       export PRETTIERD_LOCAL_PRETTIER_ONLY=true
+      umask 002
       ${builtins.readFile ./scripts/g.sh}
     '';
     plugins = [
