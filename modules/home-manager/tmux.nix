@@ -50,12 +50,16 @@
       bind-key -n M-x confirm-before "kill-pane"
       bind-key -n M-/ copy-mode
 
+      set -s set-clipboard on
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
+      bind-key -T copy-mode-vi V send-keys -X select-line
+      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+
       set-option -g status-keys vi
       set-option -g set-titles on
       set-option -g set-titles-string 'tmux - #W'
       set -g bell-action any
       set-option -g visual-bell off
-      set-option -g set-clipboard off
       setw -g mode-keys vi
       setw -g monitor-activity on
       set -g visual-activity on
