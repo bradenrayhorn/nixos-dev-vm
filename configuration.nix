@@ -155,11 +155,11 @@
 
   # working directories
   systemd.tmpfiles.rules = [
-    "d /var/git 2770 braden dev -"
-    "d /var/gw  2770 braden dev -"
+    "d /var/git 2750 braden dev -"
+    "d /var/gw  2770 braden braden -"
     "d /var/agents  2770 agent dev -"
 
-    "d /var/gradle  2770 braden dev -"
+    "d /var/gradle  2750 braden dev -"
   ];
 
   # docker

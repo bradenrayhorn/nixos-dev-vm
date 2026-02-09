@@ -72,7 +72,7 @@ let
 
       # reset perms
       for ws_repo_path in $BOUND_DIRS; do
-        sudo chown -R braden:dev $ws_repo_path
+        sudo chown -R braden:braden $ws_repo_path
       done
 
       if [ -z "$SESSION_DIR" ] || [ ! -d "$SESSION_DIR" ]; then
