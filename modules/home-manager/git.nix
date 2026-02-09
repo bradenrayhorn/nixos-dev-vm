@@ -10,6 +10,7 @@
     settings.safe.directory = "*";
     ignores = [
       ".envrc"
+      ".direnv"
     ];
   };
 }

@@ -6,6 +6,7 @@
     ./home-manager/neovim.nix
     ./home-manager/tmux.nix
     ./home-manager/zsh.nix
+    ./home-manager/direnv.nix
     ./home-manager/agent-dispatch.nix
   ];
 

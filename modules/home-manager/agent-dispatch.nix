@@ -53,13 +53,22 @@ let
     echo "Using session: $SESSION_DIR"
 
     # Setup home and run dir
-    TMP_DIR=$(mktemp -d -t agent-run-XXXXXXXX)
+    TMP_DIR=$(mktemp -d -p /tmp agent-run-XXXXXXXX)
     HOME_DIR=$TMP_DIR/home
     mkdir -p $HOME_DIR
-    sudo chown -R agent:dev "$TMP_DIR"
     sudo chmod 770 -R "$TMP_DIR"
     sudo chmod g+s -R "$TMP_DIR"
 
+    mkdir -p $SESSION_DIR/.pi
+
+    if [ -d /var/gradle/wrapper ]; then
+      mkdir -p $HOME_DIR/.gradle
+      cp -r /var/gradle/wrapper $HOME_DIR/.gradle
+    fi
+
+    sudo chown -R agent:dev "$TMP_DIR"
+
+    # proxy vars
     HOST_PROXY_PORT=9999
     SOCKET_PATH=$TMP_DIR/proxy.sock
     SOCAT_PID_FILE=$TMP_DIR/socat.pid
@@ -114,15 +123,19 @@ let
       --dev /dev \
       --tmpfs /tmp \
       --ro-bind /nix /nix \
+      --ro-bind /bin /bin \
       --ro-bind /run/current-system /run/current-system \
       --ro-bind /etc /etc \
       --bind "$HOME_DIR" "/home/agent" \
-      --bind "$SESSION_DIR" "/home/agent/.pi" \
+      --bind "$SESSION_DIR/.pi" "/home/agent/.pi" \
+      --bind /home/agent/.cache/nix /home/agent/.cache/nix \
       --ro-bind /home/agent/.zsh /home/agent/.zsh \
       --ro-bind /home/agent/.zshrc /home/agent/.zshrc \
       --ro-bind /home/agent/.zshenv /home/agent/.zshenv \
       --ro-bind /home/agent/.config /home/agent/.config \
       --ro-bind /home/agent/.pi/agent/auth.json /home/agent/.pi/agent/auth.json \
+      --ro-bind /var/gradle/caches/modules-2 /var/gradle/caches/modules-2 \
+      --ro-bind /var/flakes /var/flakes \
       --bind "$SOCKET_PATH" "/run/proxy.sock" \
       "''${BOUND_WORKSPACE_DIRS[@]}" \
       --clearenv \
@@ -133,6 +146,7 @@ let
       --setenv USER "agent" \
       --setenv HISTFILE "/dev/null" \
       --setenv SAVEHIST "0" \
+      --setenv GRADLE_RO_DEP_CACHE "/var/gradle/caches" \
       --die-with-parent \
       --new-session \
       ${pkgs.bash}/bin/bash -c "
