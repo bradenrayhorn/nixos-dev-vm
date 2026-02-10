@@ -1,4 +1,9 @@
 { ... }:
 {
   profiles.kotlin.enable = true;
+
+  home-manager.users.braden.agentDispatch.envs = {
+    # Example: pass custom env into the agent bubblewrap container.
+    FOO = "bar";
+  };
 }

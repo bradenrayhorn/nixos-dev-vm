@@ -1,9 +1,19 @@
 {
+  lib,
+  config,
   pkgs,
   ...
 }:
 # TODO - can we skip binding /etc
 let
+  cfg = config.agentDispatch;
+  extraEnvArgsLines = lib.mapAttrsToList (
+    # Keep the trailing backslash for bwrap line continuation.
+    name: value: "--setenv ${lib.escapeShellArg name} ${lib.escapeShellArg value} \\"
+  ) cfg.envs;
+  extraEnvArgsBlock = lib.optionalString (extraEnvArgsLines != [ ]) (
+    lib.concatStringsSep "\n      " extraEnvArgsLines
+  );
   agent = pkgs.writeShellScriptBin "spawn-agent" ''
     set -euo pipefail
 
@@ -147,6 +157,7 @@ let
       --setenv HISTFILE "/dev/null" \
       --setenv SAVEHIST "0" \
       --setenv GRADLE_RO_DEP_CACHE "/var/gradle/caches" \
+      ${extraEnvArgsBlock}
       --die-with-parent \
       --new-session \
       ${pkgs.bash}/bin/bash -c "
@@ -166,8 +177,21 @@ let
   '';
 in
 {
-  home.packages = ([
-    agent
-    pkgs.socat
-  ]);
+  options.agentDispatch = {
+    envs = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      description = "Extra environment variables to pass into the agent bubblewrap container.";
+      example = {
+        FOO = "bar";
+      };
+    };
+  };
+
+  config = {
+    home.packages = [
+      agent
+      pkgs.socat
+    ];
+  };
 }
