@@ -157,6 +157,7 @@ let
         export https_proxy=http://127.0.0.1:9998
         export HTTP_PROXY=http://127.0.0.1:9998
         export HTTPS_PROXY=http://127.0.0.1:9998
+        export GRADLE_OPTS='-Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=9998 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=9998'
 
         # create new files/dirs with group write access
         umask 002
