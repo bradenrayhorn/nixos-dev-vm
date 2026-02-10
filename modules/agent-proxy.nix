@@ -2,6 +2,8 @@
 {
   environment.etc."tinyproxy/filter".text = ''
     api.openai.com
+    auth.openai.com
+    chatgpt.com
   '';
 
   services.tinyproxy = {
