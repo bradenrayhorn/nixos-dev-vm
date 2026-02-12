@@ -2,6 +2,8 @@
 
 # Usage: ./update-lockfile.sh 0.51.2
 
+set -euo pipefail
+
 VERSION="${1}"
 NAME="pi-coding-agent"
 SCOPE="@mariozechner"
