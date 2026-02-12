@@ -56,6 +56,37 @@ let
         --set JAVA_HOME "$out/lib/kotlin-lsp/jre"
     '';
   };
+
+  tree-sitter-cli = pkgs.stdenv.mkDerivation rec {
+    pname = "tree-sitter-cli";
+    version = "0.26.5";
+
+    treeSitterPlatform = "linux-arm64";
+
+    src = pkgs.fetchurl {
+      url = "https://github.com/tree-sitter/tree-sitter/releases/download/v${version}/tree-sitter-${treeSitterPlatform}.gz";
+      hash = "sha256-UZ6GSABKclo7tWa9s/MTSUbfTJ1/zaa+XPZ9I30rCSE=";
+    };
+
+    nativeBuildInputs = [
+      pkgs.gzip
+    ];
+
+    dontConfigure = true;
+    dontBuild = true;
+
+    unpackPhase = ''
+      runHook preUnpack
+      gunzip -c $src > tree-sitter
+      runHook postUnpack
+    '';
+
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 tree-sitter $out/bin/tree-sitter
+      runHook postInstall
+    '';
+  };
 in
 {
   xdg.configFile = {
@@ -66,27 +97,26 @@ in
 
   programs.neovim = {
     enable = true;
-    extraPackages =
-      with pkgs;
-      [
-        tree-sitter
-        eslint
-        gopls
-        nil
-        svelte-language-server
-        typescript
-        nodejs_24
-        vtsls
-        typescript-language-server
-        vscode-langservers-extracted
+    extraPackages = [
+      tree-sitter-cli
 
-        # format
-        nixfmt-rfc-style
-        prettierd
-        stylua
-      ]
-      ++ lib.optionals osConfig.profiles.kotlin.enable [
-        kotlin-lsp
-      ];
+      pkgs.eslint
+      pkgs.gopls
+      pkgs.nil
+      pkgs.svelte-language-server
+      pkgs.typescript
+      pkgs.nodejs_24
+      pkgs.vtsls
+      pkgs.typescript-language-server
+      pkgs.vscode-langservers-extracted
+
+      # format
+      pkgs.nixfmt-rfc-style
+      pkgs.prettierd
+      pkgs.stylua
+    ]
+    ++ lib.optionals osConfig.profiles.kotlin.enable [
+      kotlin-lsp
+    ];
   };
 }
