@@ -34,6 +34,8 @@
     };
   };
 
+  networking.firewall.allowedTCPPorts = [ 3000 ];
+
   security = {
     sudo.wheelNeedsPassword = false;
   };
