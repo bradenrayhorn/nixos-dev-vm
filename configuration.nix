@@ -102,6 +102,8 @@
       mkdir -p /var/gw/main/bradenrayhorn
       echo "(cd /var/git/bradenrayhorn && git clone --bare git@github.com:bradenrayhorn/nixos-dev-vm.git)"
       echo "(cd /var/git/bradenrayhorn/nixos-dev-vm.git && git worktree add /var/gw/main/bradenrayhorn/nixos-dev-vm main)"
+      echo "(optional) Add local.nix: \n"
+      echo "(cd /var/gw/main/bradenrayhorn/nixos-dev-vm && cp ./local.nix.example ./local.nix && git add --intent-to-add -f local.nix && git update-index --assume-unchanged local.nix) \n"
       echo "nx-rebuild"
     '')
   ];
