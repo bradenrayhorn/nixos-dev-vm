@@ -65,6 +65,7 @@ let
     # make some required dirs
     sudo -u agent mkdir -p /home/agent/.cache/nix
     mkdir -p /var/gradle/caches/modules-2
+    chown braden:dev /var/gw
 
     # Setup home and run dir
     TMP_DIR=$(mktemp -d -p /tmp agent-run-XXXXXXXX)
