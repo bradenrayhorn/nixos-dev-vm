@@ -11,9 +11,9 @@ let
     # Keep the trailing backslash for bwrap line continuation.
     name: value: "--setenv ${lib.escapeShellArg name} ${lib.escapeShellArg value} \\"
   ) cfg.envs;
-  extraEnvArgsBlock = lib.optionalString (extraEnvArgsLines != [ ]) (
-    lib.concatStringsSep "\n      " extraEnvArgsLines
-  );
+  extraEnvArgsBlock =
+    if extraEnvArgsLines != [ ] then lib.concatStringsSep "\n      " extraEnvArgsLines else "\\";
+
   agent = pkgs.writeShellScriptBin "spawn-agent" ''
     set -euo pipefail
 
@@ -61,6 +61,10 @@ let
         SESSION_DIR="$selection"
     fi
     echo "Using session: $SESSION_DIR"
+
+    # make some required dirs
+    sudo -u agent mkdir -p /home/agent/.cache/nix
+    mkdir -p /var/gradle/caches/modules-2
 
     # Setup home and run dir
     TMP_DIR=$(mktemp -d -p /tmp agent-run-XXXXXXXX)
