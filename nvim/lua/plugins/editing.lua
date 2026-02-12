@@ -14,6 +14,9 @@ return {
 		},
 	},
 
+	-- Quickfix
+	{ "kevinhwang91/nvim-bqf" },
+
 	--{ "Wansmer/treesj", opts = { use_default_keymap = true } },
 	-- flash.nvim
 }

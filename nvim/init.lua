@@ -10,4 +10,4 @@ require("config.lsp")
 require("config.treesitter")
 
 -- set color scheme
-vim.cmd.colorscheme("kanagawa")
+vim.cmd.colorscheme("gruvbox")
