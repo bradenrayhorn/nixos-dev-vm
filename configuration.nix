@@ -137,6 +137,7 @@
   users.users.braden = {
     isNormalUser = true;
     home = "/home/braden";
+    homeMode = "700";
     createHome = true;
     group = "braden";
     extraGroups = [
