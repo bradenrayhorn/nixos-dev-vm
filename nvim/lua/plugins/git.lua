@@ -5,6 +5,11 @@ return {
 	},
 
 	{
+		"tpope/vim-fugitive",
+		config = function() end,
+	},
+
+	{
 		"georgeguimaraes/review.nvim",
 		dependencies = {
 			"esmuellert/codediff.nvim",

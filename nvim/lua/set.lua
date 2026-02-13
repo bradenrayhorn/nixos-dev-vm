@@ -60,3 +60,19 @@ vim.opt.updatetime = 250
 vim.opt.colorcolumn = "100"
 
 vim.opt.statusline = "%f %h%w%m%r%=%-14.(%l,%c%V%) %y %P"
+
+-- diff
+
+vim.opt.fillchars = {
+	diff = "╱",
+}
+
+vim.opt.diffopt = {
+	"internal",
+	"filler",
+	"closeoff",
+	"context:12",
+	"algorithm:histogram",
+	"linematch:200",
+	"indent-heuristic",
+}

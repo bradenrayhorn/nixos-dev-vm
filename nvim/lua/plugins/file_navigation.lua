@@ -23,7 +23,16 @@ return {
 				desc = "Smart Find Files",
 			},
 			{
-				"<leader>,",
+				"<leader>gh",
+				function()
+					Snacks.picker.git_diff({
+						group = true,
+					})
+				end,
+				desc = "Git diff",
+			},
+			{
+				"<leader>e",
 				function()
 					Snacks.picker.buffers()
 				end,
@@ -51,7 +60,7 @@ return {
 				desc = "Notification History",
 			},
 			{
-				"<leader>e",
+				"<leader>fe",
 				function()
 					Snacks.explorer()
 				end,
