@@ -150,6 +150,7 @@ let
       --ro-bind /home/agent/.config /home/agent/.config \
       --ro-bind /home/agent/.pi/agent/auth.json /home/agent/.pi/agent/auth.json \
       --ro-bind /var/gradle/caches/modules-2 /var/gradle/caches/modules-2 \
+      --ro-bind /var/pnpm /var/pnpm \
       --ro-bind /var/flakes /var/flakes \
       --bind "$SOCKET_PATH" "/run/proxy.sock" \
       "''${BOUND_WORKSPACE_DIRS[@]}" \
@@ -162,6 +163,7 @@ let
       --setenv HISTFILE "/dev/null" \
       --setenv SAVEHIST "0" \
       --setenv GRADLE_RO_DEP_CACHE "/var/gradle/caches" \
+      --setenv PNPM_HOME "/var/pnpm" \
       ${extraEnvArgsBlock}
       --die-with-parent \
       --new-session \

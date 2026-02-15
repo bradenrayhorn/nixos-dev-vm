@@ -15,6 +15,7 @@
 
   home.sessionVariables = {
     GRADLE_USER_HOME = "/var/gradle";
+    PNPM_HOME = "/var/pnpm";
   };
 
   home.packages = import ./common-packages.nix pkgs;

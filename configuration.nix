@@ -165,6 +165,7 @@
     "d /var/agents  2770 agent dev -"
 
     "d /var/gradle  2750 braden dev -"
+    "d /var/pnpm  2750 braden dev -"
   ];
 
   # docker
