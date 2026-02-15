@@ -34,7 +34,11 @@
     };
   };
 
-  networking.firewall.allowedTCPPorts = [ 3000 ];
+  # allow ports for dev
+  networking.firewall.allowedTCPPorts = [
+    3000
+    5173
+  ];
 
   security = {
     sudo.wheelNeedsPassword = false;
