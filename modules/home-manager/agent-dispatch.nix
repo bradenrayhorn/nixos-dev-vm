@@ -178,7 +178,7 @@ let
         export GRADLE_OPTS='-Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=9998 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=9998'
 
         # create new files/dirs with group write access
-        umask 002
+        umask 007
         exec ${pkgs.zsh}/bin/zsh -c 'tmux'
       "
   '';

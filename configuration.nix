@@ -42,7 +42,13 @@
 
   security = {
     sudo.wheelNeedsPassword = false;
+    pam.enableUMask = true;
+    loginDefs.settings.UMASK = "007";
   };
+
+  systemd.user.extraConfig = ''
+    DefaultUMask=0007
+  '';
 
   # hardware
   boot.initrd.availableKernelModules = [
