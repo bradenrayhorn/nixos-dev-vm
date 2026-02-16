@@ -139,6 +139,7 @@ let
       --tmpfs /tmp \
       --ro-bind /nix /nix \
       --ro-bind /bin /bin \
+      --ro-bind /usr/bin /usr/bin \
       --ro-bind /run/current-system /run/current-system \
       --ro-bind /etc /etc \
       --bind "$HOME_DIR" "/home/agent" \
