@@ -79,6 +79,7 @@ vim.lsp.enable("gopls")
 --    javascript
 --vim.lsp.enable("ts_ls")
 vim.lsp.config("vtsls", {
+	filetypes = { "typescript", "svelte" },
 	settings = {
 		typescript = {
 			preferences = {
