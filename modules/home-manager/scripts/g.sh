@@ -30,6 +30,10 @@ g() {
       if [[ ! -d "$bare_dir" ]]; then
         mkdir -p "/var/git/$owner"
         git clone --bare "$repo_url" "$bare_dir"
+
+	# track upstream branches like a normal client
+        git -C "$bare_dir" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+        git -C "$bare_dir" fetch origin
       fi
 
       if [[ ! -d "$main_workspace" ]]; then
