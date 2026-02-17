@@ -94,6 +94,6 @@ vim.lsp.enable("svelte")
 vim.lsp.enable("cssls")
 vim.lsp.enable("css_variables")
 
-if vim.env.KOTLIN_LSP_ENABLED == "1" then
+if vim.env.NX_KOTLIN_LSP_ENABLED == "1" then
 	vim.lsp.enable("kotlin_lsp")
 end

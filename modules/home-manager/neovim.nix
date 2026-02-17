@@ -22,6 +22,7 @@ let
     ];
 
     buildInputs = [
+      pkgs.jdk21
       pkgs.alsa-lib
       pkgs.freetype
       pkgs.libgcc.lib
@@ -39,21 +40,39 @@ let
     installPhase = ''
       runHook preInstall
 
-      mkdir -p $out/bin $out/lib/kotlin-lsp
+      # 1. Setup directories
+      mkdir -p $out/lib/kotlin-lsp $out/bin
       cp -r * $out/lib/kotlin-lsp
-      chmod +x $out/lib/kotlin-lsp/jre/bin/java
+
+      # 2. Symlink the Nix JDK to 'jre'
+      #    We replace the bundled JRE with a link to the system JDK.
+      rm -rf $out/lib/kotlin-lsp/jre
+      ln -s ${pkgs.jdk21}/lib/openjdk $out/lib/kotlin-lsp/jre
+
+      # 3. Patch the startup script
+      #    Stop it from trying to 'chmod' the read-only java binary.
+      substituteInPlace $out/lib/kotlin-lsp/kotlin-lsp.sh \
+        --replace 'chmod +x' '# chmod +x'
+
+      # 4. Make the startup script executable (Crucial Step!)
       chmod +x $out/lib/kotlin-lsp/kotlin-lsp.sh
-      ln -s $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp
+
+      # 5. Create the wrapper
+      #    We use makeWrapper to create a binary in $out/bin that calls the script in $out/lib.
+      #    We also inject the PATH and JAVA_HOME here.
+      makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp \
+        --set JAVA_HOME "${pkgs.jdk21}/lib/openjdk" \
+        --prefix PATH : ${
+          pkgs.lib.makeBinPath [
+            pkgs.jdk17
+            pkgs.jdk21
+            pkgs.coreutils
+            pkgs.bash
+            pkgs.git
+          ]
+        }
 
       runHook postInstall
-    '';
-
-    postInstall = ''
-      substituteInPlace $out/lib/kotlin-lsp/kotlin-lsp.sh \
-        --replace 'chmod +x "$LOCAL_JRE_PATH/bin/java"' '# chmod removed for NixOS'
-
-      wrapProgram $out/bin/kotlin-lsp \
-        --set JAVA_HOME "$out/lib/kotlin-lsp/jre"
     '';
   };
 
