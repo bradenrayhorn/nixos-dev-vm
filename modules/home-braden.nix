@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  osConfig,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -16,6 +21,11 @@
   home.sessionVariables = {
     GRADLE_USER_HOME = "/var/gradle";
     PNPM_HOME = "/var/pnpm";
+  };
+
+  home.file = lib.optionalAttrs osConfig.profiles.kotlin.enable {
+    "jdks/jdk17".source = "${pkgs.jdk17}/lib/openjdk";
+    "jdks/jdk21".source = "${pkgs.jdk21}/lib/openjdk";
   };
 
   home.packages = import ./common-packages.nix pkgs;
