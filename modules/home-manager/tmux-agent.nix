@@ -42,7 +42,6 @@
       bind v split-window -h -c "#{pane_current_path}"
       bind b split-window -v -c "#{pane_current_path}"
       bind R command-prompt -I "" "rename-window '%%'"
-      bind f resize-pane -Z
       bind h select-pane -L
       bind l select-pane -R
       bind k select-pane -U

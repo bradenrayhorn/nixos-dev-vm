@@ -35,10 +35,9 @@
       bind-key -n M-< swap-window -t -1
       bind-key -n M-> swap-window -t +1
       bind-key -n M-X confirm-before "kill-window"
-      bind-key -n M-v split-window -h -c "#{pane_current_path}"
-      bind-key -n M-b split-window -v -c "#{pane_current_path}"
+      bind-key v split-window -h -c "#{pane_current_path}"
+      bind-key b split-window -v -c "#{pane_current_path}"
       bind-key -n M-R command-prompt -I "" "rename-window '%%'"
-      bind-key -n M-f resize-pane -Z
       bind-key -n M-h select-pane -L
       bind-key -n M-l select-pane -R
       bind-key -n M-k select-pane -U
