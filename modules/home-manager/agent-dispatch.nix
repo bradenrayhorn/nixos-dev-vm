@@ -81,12 +81,31 @@ let
       cp -r /var/gradle/wrapper $HOME_DIR/.gradle
     fi
 
-    sudo chown -R agent:dev "$TMP_DIR"
-
-    # proxy vars
+    # proxy + trust vars
     HOST_PROXY_PORT=9999
     SOCKET_PATH=$TMP_DIR/proxy.sock
     SOCAT_PID_FILE=$TMP_DIR/socat.pid
+
+    MITM_CA_CERT_HOST=/var/lib/agent-mitmproxy/mitmproxy-ca-cert.pem
+    MITM_CA_CERT_TMP=$TMP_DIR/mitmproxy-ca-cert.pem
+    JAVA_TRUSTSTORE_HOST=$TMP_DIR/java-mitm-truststore.jks
+
+    if [ ! -f "$MITM_CA_CERT_HOST" ]; then
+      echo "ERROR: mitm CA cert still missing at $MITM_CA_CERT_HOST"
+      exit
+    fi
+
+    cp "$MITM_CA_CERT_HOST" "$MITM_CA_CERT_TMP"
+    ${pkgs.jdk17_headless}/bin/keytool \
+      -importcert \
+      -noprompt \
+      -alias agent-mitmproxy-ca \
+      -file "$MITM_CA_CERT_TMP" \
+      -keystore "$JAVA_TRUSTSTORE_HOST" \
+      -storepass changeit
+    chmod 644 "$MITM_CA_CERT_TMP" "$JAVA_TRUSTSTORE_HOST"
+
+    sudo chown -R agent:dev "$TMP_DIR"
 
     cleanup() {
       if [ -f "$SOCAT_PID_FILE" ]; then
@@ -153,6 +172,9 @@ let
       --ro-bind /var/gradle/caches/modules-2 /var/gradle/caches/modules-2 \
       --ro-bind /var/pnpm /var/pnpm \
       --ro-bind /var/flakes /var/flakes \
+      --dir /run/mitm \
+      --ro-bind "$MITM_CA_CERT_TMP" "/run/mitm/mitmproxy-ca-cert.pem" \
+      --ro-bind "$JAVA_TRUSTSTORE_HOST" "/run/mitm/java-truststore.jks" \
       --bind "$SOCKET_PATH" "/run/proxy.sock" \
       "''${BOUND_WORKSPACE_DIRS[@]}" \
       --clearenv \
@@ -176,7 +198,19 @@ let
         export https_proxy=http://127.0.0.1:9998
         export HTTP_PROXY=http://127.0.0.1:9998
         export HTTPS_PROXY=http://127.0.0.1:9998
-        export GRADLE_OPTS='-Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=9998 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=9998'
+
+        export SSL_CERT_FILE=/run/mitm/mitmproxy-ca-cert.pem
+        export CURL_CA_BUNDLE=/run/mitm/mitmproxy-ca-cert.pem
+        export REQUESTS_CA_BUNDLE=/run/mitm/mitmproxy-ca-cert.pem
+        export GIT_SSL_CAINFO=/run/mitm/mitmproxy-ca-cert.pem
+        export NODE_EXTRA_CA_CERTS=/run/mitm/mitmproxy-ca-cert.pem
+        export NIX_SSL_CERT_FILE=/run/mitm/mitmproxy-ca-cert.pem
+
+        export JAVA_TRUSTSTORE=/run/mitm/java-truststore.jks
+        export JAVA_TRUST_OPTS='-Djavax.net.ssl.trustStore=/run/mitm/java-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=JKS'
+
+        export JAVA_TOOL_OPTIONS=\"\$JAVA_TRUST_OPTS ''${JAVA_TOOL_OPTIONS:-}\"
+        export GRADLE_OPTS=\"-Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=9998 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=9998 \$JAVA_TRUST_OPTS ''${GRADLE_OPTS:-}\"
 
         # create new files/dirs with group write access
         umask 007

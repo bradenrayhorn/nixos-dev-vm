@@ -8,8 +8,17 @@ let
   cfgKotlin = config.profiles.kotlin;
 in
 {
-  options.profiles.kotlin = {
-    enable = mkEnableOption "Kotlin development support";
+  options.profiles = {
+    kotlin.enable = mkEnableOption "Kotlin development support";
+
+    agentProxy.allowedExactUrls = mkOption {
+      type = with types; listOf str;
+      default = [ ];
+      example = [
+        "https://example.com/myfile.txt"
+      ];
+      description = "Exact request URLs allowed through the agent MITM proxy.";
+    };
   };
 
   config = mkIf cfgKotlin.enable {
