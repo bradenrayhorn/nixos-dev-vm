@@ -168,6 +168,7 @@ let
       --ro-bind /home/agent/.zshrc /home/agent/.zshrc \
       --ro-bind /home/agent/.zshenv /home/agent/.zshenv \
       --ro-bind /home/agent/.config /home/agent/.config \
+      --ro-bind /home/agent/.pi/agent/extensions /home/agent/.pi/agent/extensions \
       --ro-bind /home/agent/.pi/agent/auth.json /home/agent/.pi/agent/auth.json \
       --ro-bind /var/gradle/caches/modules-2 /var/gradle/caches/modules-2 \
       --ro-bind /var/pnpm /var/pnpm \
