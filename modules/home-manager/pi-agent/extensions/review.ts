@@ -62,10 +62,11 @@ Provide findings in a clear and structured format so that another engineer can w
 - Each finding should include a file, location within the file, and explanation.
 - Keep findings concise.
 - Don't generate a full fix, just note the issue and short suggestions.
+- Do not leave extra notes besides the finding list.
       `;
 
       if (ctx.hasUI) {
-        ctx.ui.notify("Running review in background...", "info");
+        ctx.ui.notify("Running review...", "info");
       }
 
       const result = await pi.exec("pi", ["-p", reviewPrompt], { timeout: 600000 });
@@ -95,11 +96,11 @@ Provide findings in a clear and structured format so that another engineer can w
         : "";
 
       if (followUpInstructions) {
-        const followUpMessage = `Please handle this review feedback with the following instructions.
-Review feedback:
+        const followUpMessage = `Please handle this review feedback.
+feedback:
 ${reviewText}
 
-Instructions:
+instructions:
 ${followUpInstructions}`;
 
         pi.sendUserMessage(followUpMessage);

@@ -12,8 +12,9 @@
   home.username = "agent";
   home.homeDirectory = "/home/agent";
 
-  home.file = {
-    ".pi/agent/extensions/review.ts".source = ./home-manager/pi-agent/extensions/review.ts;
+  home.file.".pi/agent/extensions" = {
+    source = ./home-manager/pi-agent/extensions;
+    recursive = true;
   };
 
   home.packages = import ./common-packages.nix pkgs;
