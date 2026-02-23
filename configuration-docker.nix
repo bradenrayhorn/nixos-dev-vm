@@ -24,11 +24,22 @@ let
     set -euo pipefail
 
     SKOPEO="${pkgs.skopeo}/bin/skopeo"
+    DOCKER="${pkgs.docker-client}/bin/docker"
     POLICY_FILE="/home/braden/.config/docker-precache/policy.json"
     CACHE_DIR="''${CACHE_DIR:-/home/braden/docker-image-cache}"
 
+    DOCKERAGENT_UID="$(${pkgs.coreutils}/bin/id -u dockeragent)"
+    DOCKERAGENT_RUNTIME="/run/user/$DOCKERAGENT_UID"
+    DOCKER_SOCKET="''${DOCKER_SOCKET:-$DOCKERAGENT_RUNTIME/docker.sock}"
+
     if [[ ! -f "$POLICY_FILE" ]]; then
       echo "missing policy file: $POLICY_FILE" >&2
+      exit 1
+    fi
+
+    if [[ ! -S "$DOCKER_SOCKET" ]]; then
+      echo "docker socket not found: $DOCKER_SOCKET" >&2
+      echo "is docker rootless running for dockeragent?" >&2
       exit 1
     fi
 
@@ -40,7 +51,6 @@ let
       images=("$@")
     else
       echo "usage: docker-precache-images <image> [<image> ...]" >&2
-      echo "or create $IMAGES_FILE with one image per line" >&2
       exit 1
     fi
 
@@ -50,6 +60,10 @@ let
       echo "Caching $image -> $archive"
       "$SKOPEO" --policy "$POLICY_FILE" copy --retry-times 3 \
         "docker://$image" "docker-archive:$archive:$image"
+
+      echo "Loading $image into dockeragent daemon via $DOCKER_SOCKET"
+      "${pkgs.sudo}/bin/sudo" -u dockeragent XDG_RUNTIME_DIR="$DOCKERAGENT_RUNTIME" \
+        "$DOCKER" --host "unix://$DOCKER_SOCKET" load --input "$archive"
     done
   '';
 in
