@@ -1,4 +1,4 @@
-name: Build NixOS ISO
+name: Build NixOS ISOs
 
 on:
   push:
@@ -8,14 +8,41 @@ on:
       - flake.nix
       - flake.lock
       - configuration.nix
+      - configuration-docker.nix
       - .github/workflows/build.yml
 
 permissions:
   contents: write
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Generate version number
+        id: version
+        run: |
+          VERSION=$(date +'%y.%m').${{ github.run_number }}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
   build:
+    name: Build ${{ matrix.name }}
+    needs: version
     runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: main ISO
+            nix_attr: packages.aarch64-linux.iso.config.system.build.isoImage
+            file_prefix: nixos
+            artifact_name: iso-main
+          - name: docker ISO
+            nix_attr: packages.aarch64-linux.docker-iso.config.system.build.isoImage
+            file_prefix: nixos-docker
+            artifact_name: iso-docker
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
@@ -25,28 +52,44 @@ jobs:
           sh <(curl -L https://nixos.org/nix/install) --daemon
           echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf
 
-      - name: Generate version number
-        id: version
-        run: |
-          VERSION=$(date +'%y.%m').${{ github.run_number }}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Build ISO
         run: |
           . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-          nix build .#packages.aarch64-linux.iso.config.system.build.isoImage --print-build-logs
+          nix build .#${{ matrix.nix_attr }} --print-build-logs
 
       - name: Prepare ISO artifact
         run: |
           mkdir -p release
           ISO_PATH=$(readlink -f result/iso/*.iso)
-          cp "$ISO_PATH" release/nixos-${{ steps.version.outputs.version }}-aarch64.iso
+          OUTPUT_NAME="${{ matrix.file_prefix }}-${{ needs.version.outputs.version }}-aarch64.iso"
+          cp "$ISO_PATH" "release/$OUTPUT_NAME"
 
-      - name: Create GitHub Release
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release/${{ matrix.file_prefix }}-${{ needs.version.outputs.version }}-aarch64.iso
+
+  release:
+    name: Create GitHub release
+    needs:
+      - version
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download ISO artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
-          gh release create v${{ steps.version.outputs.version }} \
-            --title "v${{ steps.version.outputs.version }}" \
-            release/nixos-${{ steps.version.outputs.version }}-aarch64.iso
+          TAG="v${VERSION}"
 
+          gh release create "$TAG" \
+            --title "$TAG" \
+            release/*.iso
