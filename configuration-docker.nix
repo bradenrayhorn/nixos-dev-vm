@@ -37,12 +37,6 @@ let
       exit 1
     fi
 
-    if [[ ! -S "$DOCKER_SOCKET" ]]; then
-      echo "docker socket not found: $DOCKER_SOCKET" >&2
-      echo "is docker rootless running for dockeragent?" >&2
-      exit 1
-    fi
-
     mkdir -p "$CACHE_DIR"
 
     declare -a images=()
