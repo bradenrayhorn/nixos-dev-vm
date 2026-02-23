@@ -31,8 +31,16 @@
       hostname = "10.0.2.2";
       port = 5223;
       user = "dockeragent";
+      controlMaster = "auto";
+      controlPath = "~/.ssh/controlmasters/%C";
+      controlPersist = "30m";
     };
   };
+
+  home.activation.createSshControlMasterDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "$HOME/.ssh/controlmasters"
+    chmod 700 "$HOME/.ssh/controlmasters"
+  '';
 
   home.file = lib.optionalAttrs osConfig.profiles.kotlin.enable {
     "jdks/jdk17".source = "${pkgs.jdk17}/lib/openjdk";
