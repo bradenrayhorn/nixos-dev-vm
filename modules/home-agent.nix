@@ -17,7 +17,9 @@
     recursive = true;
   };
 
-  home.packages = import ./common-packages.nix pkgs;
+  home.packages = (import ./common-packages.nix pkgs) ++ [
+    pkgs.docker-client
+  ];
 
   home.stateVersion = "25.11";
 }
