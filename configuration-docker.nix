@@ -23,7 +23,10 @@
       PermitRootLogin = "no";
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
-      AllowUsers = [ "braden" ];
+      AllowUsers = [
+        "braden"
+        "dockeragent"
+      ];
       AllowAgentForwarding = true;
     };
   };
@@ -82,6 +85,9 @@
     createHome = true;
     group = "dockeragent";
     linger = true;
+    openssh.authorizedKeys.keys = [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMxUPJoiKdlvEq4+i4ZCl7lj1NOSgT7BsspqfgncdJKQVV5CKVZ1hnn/MNO4cAXRFOWjXkzowN+7mJZm8cVhP18="
+    ];
   };
 
   virtualisation.docker.enable = false;

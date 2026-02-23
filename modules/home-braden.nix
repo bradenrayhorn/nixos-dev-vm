@@ -21,6 +21,17 @@
   home.sessionVariables = {
     GRADLE_USER_HOME = "/var/gradle";
     PNPM_HOME = "/var/pnpm";
+    DOCKER_HOST = "ssh://docker_host";
+  };
+
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    matchBlocks.docker_host = {
+      hostname = "10.0.2.2";
+      port = 5223;
+      user = "dockeragent";
+    };
   };
 
   home.file = lib.optionalAttrs osConfig.profiles.kotlin.enable {
@@ -28,7 +39,9 @@
     "jdks/jdk21".source = "${pkgs.jdk21}/lib/openjdk";
   };
 
-  home.packages = import ./common-packages.nix pkgs;
+  home.packages = (import ./common-packages.nix pkgs) ++ [
+    pkgs.docker-client
+  ];
 
   home.stateVersion = "25.11";
 }
