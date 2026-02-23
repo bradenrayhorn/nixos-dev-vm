@@ -178,12 +178,5 @@
     "d /var/pnpm  2750 braden dev -"
   ];
 
-  # docker
-  virtualisation.docker.enable = true;
-  virtualisation.docker.rootless = {
-    enable = true;
-    setSocketVariable = true;
-  };
-
   system.stateVersion = "25.11";
 }
