@@ -4,6 +4,55 @@
   pkgs,
   ...
 }:
+let
+  dockerPrecachePolicy = pkgs.writeText "docker-precache-policy.json" ''
+    {
+      "default": [
+        { "type": "reject" }
+      ],
+      "transports": {
+        "docker": {
+          "": [
+            { "type": "insecureAcceptAnything" }
+          ]
+        }
+      }
+    }
+  '';
+
+  dockerPrecacheScript = pkgs.writeShellScript "docker-precache-images" ''
+    set -euo pipefail
+
+    SKOPEO="${pkgs.skopeo}/bin/skopeo"
+    POLICY_FILE="/home/braden/.config/docker-precache/policy.json"
+    CACHE_DIR="''${CACHE_DIR:-/home/braden/docker-image-cache}"
+
+    if [[ ! -f "$POLICY_FILE" ]]; then
+      echo "missing policy file: $POLICY_FILE" >&2
+      exit 1
+    fi
+
+    mkdir -p "$CACHE_DIR"
+
+    declare -a images=()
+
+    if [[ "$#" -gt 0 ]]; then
+      images=("$@")
+    else
+      echo "usage: docker-precache-images <image> [<image> ...]" >&2
+      echo "or create $IMAGES_FILE with one image per line" >&2
+      exit 1
+    fi
+
+    for image in "''${images[@]}"; do
+      safe_name="$(echo "$image" | ${pkgs.coreutils}/bin/tr '/:@' '___')"
+      archive="$CACHE_DIR/$safe_name.tar"
+      echo "Caching $image -> $archive"
+      "$SKOPEO" --policy "$POLICY_FILE" copy --retry-times 3 \
+        "docker://$image" "docker-archive:$archive:$image"
+    done
+  '';
+in
 {
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
@@ -29,6 +78,20 @@
       ];
       AllowAgentForwarding = true;
     };
+  };
+
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 22 ];
+    backend = "iptables";
+    extraCommands = ''
+      iptables -A OUTPUT -m owner --uid-owner dockeragent -j DROP
+      ip6tables -A OUTPUT -m owner --uid-owner dockeragent -j DROP
+    '';
+    extraStopCommands = ''
+      iptables -D OUTPUT -m owner --uid-owner dockeragent -j DROP 2>/dev/null || true
+      ip6tables -D OUTPUT -m owner --uid-owner dockeragent -j DROP 2>/dev/null || true
+    '';
   };
 
   boot.initrd.availableKernelModules = [
@@ -89,6 +152,15 @@
       "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMxUPJoiKdlvEq4+i4ZCl7lj1NOSgT7BsspqfgncdJKQVV5CKVZ1hnn/MNO4cAXRFOWjXkzowN+7mJZm8cVhP18="
     ];
   };
+
+  system.activationScripts.installDockerPrecache = lib.stringAfter [ "users" ] ''
+    install -d -m 0700 -o braden -g braden /home/braden/bin
+    install -d -m 0700 -o braden -g braden /home/braden/.config/docker-precache
+    install -d -m 0700 -o braden -g braden /home/braden/docker-image-cache
+
+    install -m 0600 -o braden -g braden ${dockerPrecachePolicy} /home/braden/.config/docker-precache/policy.json
+    install -m 0700 -o braden -g braden ${dockerPrecacheScript} /home/braden/bin/docker-precache-images
+  '';
 
   virtualisation.docker.enable = false;
   virtualisation.docker.rootless = {

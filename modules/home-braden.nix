@@ -4,7 +4,12 @@
   lib,
   ...
 }:
-
+let
+  dockerPrecacheImages = pkgs.writeShellScriptBin "docker-precache-images" ''
+    set -euo pipefail
+    exec ${pkgs.openssh}/bin/ssh braden@docker_host_admin /home/braden/bin/docker-precache-images "$@"
+  '';
+in
 {
   imports = [
     ./home-manager/git.nix
@@ -35,6 +40,11 @@
       controlPath = "~/.ssh/controlmasters/%C";
       controlPersist = "30m";
     };
+    matchBlocks.docker_host_admin = {
+      hostname = "10.0.2.2";
+      port = 5223;
+      user = "braden";
+    };
   };
 
   home.activation.createSshControlMasterDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -49,6 +59,7 @@
 
   home.packages = (import ./common-packages.nix pkgs) ++ [
     pkgs.docker-client
+    dockerPrecacheImages
   ];
 
   home.stateVersion = "25.11";
