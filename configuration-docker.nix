@@ -26,7 +26,11 @@ let
     SKOPEO="${pkgs.skopeo}/bin/skopeo"
     DOCKER="${pkgs.docker-client}/bin/docker"
     POLICY_FILE="/home/braden/.config/docker-precache/policy.json"
-    CACHE_DIR="''${CACHE_DIR:-/home/braden/docker-image-cache}"
+    CACHE_DIR="/var/dockercache"
+
+    sudo mkdir -p $CACHE_DIR
+    sudo chown braden:braden $CACHE_DIR
+    sudo chmod 755 $CACHE_DIR
 
     DOCKERAGENT_UID="$(${pkgs.coreutils}/bin/id -u dockeragent)"
     DOCKERAGENT_RUNTIME="/run/user/$DOCKERAGENT_UID"
@@ -55,9 +59,13 @@ let
       "$SKOPEO" --policy "$POLICY_FILE" copy --retry-times 3 \
         "docker://$image" "docker-archive:$archive:$image"
 
+      chmod 755 $archive
+
       echo "Loading $image into dockeragent daemon via $DOCKER_SOCKET"
-      "${pkgs.sudo}/bin/sudo" -u dockeragent XDG_RUNTIME_DIR="$DOCKERAGENT_RUNTIME" \
+      sudo -u dockeragent XDG_RUNTIME_DIR="$DOCKERAGENT_RUNTIME" \
         "$DOCKER" --host "unix://$DOCKER_SOCKET" load --input "$archive"
+
+      rm -rf $archive
     done
   '';
 in
