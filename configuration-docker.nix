@@ -101,12 +101,16 @@ in
     allowedTCPPorts = [ 22 ];
     backend = "iptables";
     extraCommands = ''
-      iptables -A OUTPUT -m owner --uid-owner dockeragent -j DROP
-      ip6tables -A OUTPUT -m owner --uid-owner dockeragent -j DROP
+      iptables -A OUTPUT -m owner --uid-owner dockeragent -p tcp -j REJECT --reject-with tcp-reset
+      ip6tables -A OUTPUT -m owner --uid-owner dockeragent -p tcp -j REJECT --reject-with tcp-reset
+      iptables -A OUTPUT -m owner --uid-owner dockeragent -j REJECT --reject-with icmp-host-prohibited
+      ip6tables -A OUTPUT -m owner --uid-owner dockeragent -j REJECT --reject-with icmp6-adm-prohibited
     '';
     extraStopCommands = ''
-      iptables -D OUTPUT -m owner --uid-owner dockeragent -j DROP 2>/dev/null || true
-      ip6tables -D OUTPUT -m owner --uid-owner dockeragent -j DROP 2>/dev/null || true
+      iptables -D OUTPUT -m owner --uid-owner dockeragent -p tcp -j REJECT --reject-with tcp-reset 2>/dev/null || true
+      ip6tables -D OUTPUT -m owner --uid-owner dockeragent -p tcp -j REJECT --reject-with tcp-reset 2>/dev/null || true
+      iptables -D OUTPUT -m owner --uid-owner dockeragent -j REJECT --reject-with icmp-host-prohibited 2>/dev/null || true
+      ip6tables -D OUTPUT -m owner --uid-owner dockeragent -j REJECT --reject-with icmp6-adm-prohibited 2>/dev/null || true
     '';
   };
 
