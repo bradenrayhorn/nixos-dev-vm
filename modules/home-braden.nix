@@ -51,7 +51,7 @@ in
   }
   // lib.optionalAttrs dockerEnabled {
     DOCKER_HOST = "unix://${dockerSocketPath}";
-    TESTCONTAINERS_HOST_OVERRIDE = "10.0.2.2";
+    TESTCONTAINERS_HOST_OVERRIDE = "192.168.64.12";
   };
 
   # connection to remote docker - only when enabled
@@ -59,16 +59,16 @@ in
     enable = true;
     enableDefaultConfig = false;
     matchBlocks.docker_host = {
-      hostname = "10.0.2.2";
-      port = 5223;
+      hostname = "192.168.64.12";
+      port = 22;
       user = "dockeragent";
       controlMaster = "auto";
       controlPath = "~/.ssh/controlmasters/%C";
       controlPersist = "30m";
     };
     matchBlocks.docker_host_admin = {
-      hostname = "10.0.2.2";
-      port = 5223;
+      hostname = "192.168.64.12";
+      port = 22;
       user = "braden";
     };
   };

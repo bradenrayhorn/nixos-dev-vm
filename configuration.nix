@@ -40,6 +40,25 @@
     5173
   ];
 
+  networking.firewall.extraCommands = ''
+    # agent user egress policy: allow localhost + TCP to docker host helper IP, block everything else
+    iptables -A OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT
+    iptables -A OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p tcp -j ACCEPT
+    iptables -A OUTPUT -m owner --uid-owner agent -j REJECT
+
+    ip6tables -A OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT
+    ip6tables -A OUTPUT -m owner --uid-owner agent -j REJECT
+  '';
+
+  networking.firewall.extraStopCommands = ''
+    iptables -D OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT 2>/dev/null || true
+    iptables -D OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p tcp -j ACCEPT 2>/dev/null || true
+    iptables -D OUTPUT -m owner --uid-owner agent -j REJECT 2>/dev/null || true
+
+    ip6tables -D OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT 2>/dev/null || true
+    ip6tables -D OUTPUT -m owner --uid-owner agent -j REJECT 2>/dev/null || true
+  '';
+
   security = {
     sudo.wheelNeedsPassword = false;
     pam.enableUMask = true;
@@ -165,6 +184,18 @@
     createHome = true;
     group = "agent";
     extraGroups = [ "dev" ];
+    subUidRanges = [
+      {
+        startUid = 100000;
+        count = 65536;
+      }
+    ];
+    subGidRanges = [
+      {
+        startGid = 100000;
+        count = 65536;
+      }
+    ];
     homeMode = "770";
   };
 

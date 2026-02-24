@@ -185,7 +185,9 @@ let
 
     sudo -u agent ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-all \
-      --uid "$AGENT_UID" \
+      ${lib.optionalString dockerEnabled ''
+        --share-net \
+      ''}--uid "$AGENT_UID" \
       --gid "$AGENT_GID" \
       --hostname agent-container \
       --proc /proc \
@@ -224,6 +226,8 @@ let
       --setenv HISTFILE "/dev/null" \
       --setenv SAVEHIST "0" \
       --setenv GRADLE_RO_DEP_CACHE "/var/gradle/caches" \
+      --setenv TESTCONTAINERS_RYUK_DISABLED "true" \
+      --setenv TESTCONTAINERS_HOST_OVERRIDE "192.168.64.12" \
       --setenv PNPM_HOME "/var/pnpm" \
       ${lib.optionalString dockerEnabled ''
         --setenv DOCKER_HOST "unix:///run/docker.sock" \
