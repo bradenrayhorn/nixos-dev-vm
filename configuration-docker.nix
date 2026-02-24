@@ -99,6 +99,12 @@ in
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22 ];
+    allowedTCPPortRanges = [
+      {
+        from = 32768;
+        to = 60999;
+      }
+    ];
     backend = "iptables";
     extraCommands = ''
       iptables -A OUTPUT -m owner --uid-owner dockeragent -p tcp -j REJECT --reject-with tcp-reset

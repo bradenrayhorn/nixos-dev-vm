@@ -51,6 +51,7 @@ in
   }
   // lib.optionalAttrs dockerEnabled {
     DOCKER_HOST = "unix://${dockerSocketPath}";
+    TESTCONTAINERS_HOST_OVERRIDE = "10.0.2.2";
   };
 
   # connection to remote docker - only when enabled
