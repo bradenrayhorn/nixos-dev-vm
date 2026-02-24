@@ -5,6 +5,28 @@
   ...
 }:
 let
+  dockerEnabled = osConfig.profiles.docker.enable;
+  dockerSocketPath = "/home/braden/.docker/run/docker.sock";
+
+  dockerTunnel = pkgs.writeShellScript "docker-host-tunnel" ''
+    set -euo pipefail
+
+    rm -f "${dockerSocketPath}"
+    mkdir -p "$(dirname "${dockerSocketPath}")"
+
+    REMOTE_DOCKER_UID="$(${pkgs.openssh}/bin/ssh -o BatchMode=yes docker_host id -u)"
+    REMOTE_DOCKER_SOCKET="/run/user/$REMOTE_DOCKER_UID/docker.sock"
+
+    exec ${pkgs.openssh}/bin/ssh -nNT \
+      -o ExitOnForwardFailure=yes \
+      -o StreamLocalBindUnlink=yes \
+      -o ControlMaster=no \
+      -o ControlPersist=no \
+      -o ControlPath=none \
+      -L "${dockerSocketPath}:$REMOTE_DOCKER_SOCKET" \
+      docker_host
+  '';
+
   dockerPrecacheImages = pkgs.writeShellScriptBin "docker-precache-images" ''
     set -euo pipefail
     exec ${pkgs.openssh}/bin/ssh braden@docker_host_admin /home/braden/bin/docker-precache-images "$@"
@@ -26,11 +48,13 @@ in
   home.sessionVariables = {
     GRADLE_USER_HOME = "/var/gradle";
     PNPM_HOME = "/var/pnpm";
-    DOCKER_HOST = "ssh://docker_host";
+  }
+  // lib.optionalAttrs dockerEnabled {
+    DOCKER_HOST = "unix://${dockerSocketPath}";
   };
 
   # connection to remote docker - only when enabled
-  programs.ssh = lib.optionalAttrs osConfig.profiles.docker.enable {
+  programs.ssh = lib.optionalAttrs dockerEnabled {
     enable = true;
     enableDefaultConfig = false;
     matchBlocks.docker_host = {
@@ -52,6 +76,32 @@ in
     mkdir -p "$HOME/.ssh/controlmasters"
     chmod 700 "$HOME/.ssh/controlmasters"
   '';
+
+  systemd.user.services = lib.optionalAttrs dockerEnabled {
+    docker-host-tunnel = {
+      Unit = {
+        Description = "SSH tunnel for remote docker socket";
+        After = [ "network-online.target" ];
+        Wants = [ "network-online.target" ];
+      };
+      Service = {
+        ExecStart = "${dockerTunnel}";
+        PassEnvironment = [ "SSH_AUTH_SOCK" ];
+        Restart = "always";
+        RestartSec = 2;
+
+        Environment = "PATH=${
+          lib.makeBinPath [
+            pkgs.coreutils
+            pkgs.openssh
+          ]
+        }";
+      };
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
+    };
+  };
 
   home.file = lib.optionalAttrs osConfig.profiles.kotlin.enable {
     "jdks/jdk17".source = "${pkgs.jdk17}/lib/openjdk";
