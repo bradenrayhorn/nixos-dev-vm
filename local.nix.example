@@ -1,6 +1,7 @@
 { ... }:
 {
   profiles.kotlin.enable = true;
+  profiles.docker.enable = true;
 
   profiles.agentProxy.allowedExactUrls = [
     "https://example.com/myfile"

@@ -11,6 +11,8 @@ in
   options.profiles = {
     kotlin.enable = mkEnableOption "Kotlin development support";
 
+    docker.enable = mkEnableOption "Connection to remote docker VM";
+
     agentProxy.allowedExactUrls = mkOption {
       type = with types; listOf str;
       default = [ ];

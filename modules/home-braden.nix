@@ -29,7 +29,8 @@ in
     DOCKER_HOST = "ssh://docker_host";
   };
 
-  programs.ssh = {
+  # connection to remote docker - only when enabled
+  programs.ssh = lib.optionalAttrs osConfig.profiles.docker.enable {
     enable = true;
     enableDefaultConfig = false;
     matchBlocks.docker_host = {

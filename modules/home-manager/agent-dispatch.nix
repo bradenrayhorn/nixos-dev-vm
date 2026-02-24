@@ -2,11 +2,13 @@
   lib,
   config,
   pkgs,
+  osConfig ? { },
   ...
 }:
 # TODO - can we skip binding /etc
 let
   cfg = config.agentDispatch;
+  dockerEnabled = lib.attrByPath [ "profiles" "docker" "enable" ] false osConfig;
   extraEnvArgsLines = lib.mapAttrsToList (
     # Keep the trailing backslash for bwrap line continuation.
     name: value: "--setenv ${lib.escapeShellArg name} ${lib.escapeShellArg value} \\"
@@ -147,31 +149,33 @@ let
     sudo -u agent ${pkgs.socat}/bin/socat UNIX-LISTEN:"$SOCKET_PATH",fork TCP:127.0.0.1:$HOST_PROXY_PORT &
     echo $! > "$SOCAT_PID_FILE"
 
-    REMOTE_DOCKER_UID=$(${pkgs.openssh}/bin/ssh docker_host id -u)
-    REMOTE_DOCKER_SOCKET="/run/user/$REMOTE_DOCKER_UID/docker.sock"
-    rm -f "$DOCKER_SOCKET_PATH"
-    ${pkgs.openssh}/bin/ssh -nNT \
-      -o ExitOnForwardFailure=yes \
-      -o StreamLocalBindUnlink=yes \
-      -o StreamLocalBindMask=0117 \
-      -L "$DOCKER_SOCKET_PATH:$REMOTE_DOCKER_SOCKET" \
-      docker_host &
-    echo $! > "$DOCKER_SSH_PID_FILE"
+    ${lib.optionalString dockerEnabled ''
+      REMOTE_DOCKER_UID=$(${pkgs.openssh}/bin/ssh docker_host id -u)
+      REMOTE_DOCKER_SOCKET="/run/user/$REMOTE_DOCKER_UID/docker.sock"
+      rm -f "$DOCKER_SOCKET_PATH"
+      ${pkgs.openssh}/bin/ssh -nNT \
+        -o ExitOnForwardFailure=yes \
+        -o StreamLocalBindUnlink=yes \
+        -o StreamLocalBindMask=0117 \
+        -L "$DOCKER_SOCKET_PATH:$REMOTE_DOCKER_SOCKET" \
+        docker_host &
+      echo $! > "$DOCKER_SSH_PID_FILE"
 
-    for _ in $(${pkgs.coreutils}/bin/seq 1 50); do
-      if [ -S "$DOCKER_SOCKET_PATH" ]; then
-        break
+      for _ in $(${pkgs.coreutils}/bin/seq 1 50); do
+        if [ -S "$DOCKER_SOCKET_PATH" ]; then
+          break
+        fi
+        sleep 0.1
+      done
+
+      if [ ! -S "$DOCKER_SOCKET_PATH" ]; then
+        echo "ERROR: docker socket tunnel failed to come up at $DOCKER_SOCKET_PATH"
+        exit 1
       fi
-      sleep 0.1
-    done
 
-    if [ ! -S "$DOCKER_SOCKET_PATH" ]; then
-      echo "ERROR: docker socket tunnel failed to come up at $DOCKER_SOCKET_PATH"
-      exit 1
-    fi
-
-    sudo chown agent:dev "$DOCKER_SOCKET_PATH"
-    sudo chmod 660 "$DOCKER_SOCKET_PATH"
+      sudo chown agent:dev "$DOCKER_SOCKET_PATH"
+      sudo chmod 660 "$DOCKER_SOCKET_PATH"
+    ''}
 
     echo "Working from $WORKING_DIR"
     cd "$WORKING_DIR"
@@ -208,8 +212,9 @@ let
       --ro-bind "$MITM_CA_CERT_TMP" "/run/mitm/mitmproxy-ca-cert.pem" \
       --ro-bind "$JAVA_TRUSTSTORE_HOST" "/run/mitm/java-truststore.jks" \
       --bind "$SOCKET_PATH" "/run/proxy.sock" \
-      --bind "$DOCKER_SOCKET_PATH" "/run/docker.sock" \
-      "''${BOUND_WORKSPACE_DIRS[@]}" \
+      ${lib.optionalString dockerEnabled ''
+        --bind "$DOCKER_SOCKET_PATH" "/run/docker.sock" \
+      ''}"''${BOUND_WORKSPACE_DIRS[@]}" \
       --clearenv \
       --setenv PATH "/etc/profiles/per-user/agent/bin:/run/current-system/sw/bin:${pkgs.socat}/bin:${pkgs.docker-client}/bin" \
       --setenv HOME "/home/agent" \
@@ -220,8 +225,9 @@ let
       --setenv SAVEHIST "0" \
       --setenv GRADLE_RO_DEP_CACHE "/var/gradle/caches" \
       --setenv PNPM_HOME "/var/pnpm" \
-      --setenv DOCKER_HOST "unix:///run/docker.sock" \
-      ${extraEnvArgsBlock}
+      ${lib.optionalString dockerEnabled ''
+        --setenv DOCKER_HOST "unix:///run/docker.sock" \
+      ''}${extraEnvArgsBlock}
       --die-with-parent \
       --new-session \
       ${pkgs.bash}/bin/bash -c "
