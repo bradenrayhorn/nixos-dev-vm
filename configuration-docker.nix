@@ -27,6 +27,8 @@ let
     DOCKER="${pkgs.docker-client}/bin/docker"
     POLICY_FILE="/home/braden/.config/docker-precache/policy.json"
     CACHE_DIR="/var/dockercache"
+    TARGET_OS="linux"
+    TARGET_ARCH="arm64"
 
     sudo mkdir -p $CACHE_DIR
     sudo chown braden:braden $CACHE_DIR
@@ -56,7 +58,7 @@ let
       safe_name="$(echo "$image" | ${pkgs.coreutils}/bin/tr '/:@' '___')"
       archive="$CACHE_DIR/$safe_name.tar"
       echo "Caching $image -> $archive"
-      "$SKOPEO" --policy "$POLICY_FILE" copy --retry-times 3 \
+      "$SKOPEO" --policy "$POLICY_FILE" --override-os "$TARGET_OS" --override-arch "$TARGET_ARCH" copy --retry-times 3 \
         "docker://$image" "docker-archive:$archive:$image"
 
       chmod 755 $archive
