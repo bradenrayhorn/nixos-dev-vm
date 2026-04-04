@@ -38,6 +38,7 @@
   networking.firewall.allowedTCPPorts = [
     3000
     5173
+    1313
   ];
 
   networking.firewall.extraCommands = ''
