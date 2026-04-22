@@ -42,9 +42,10 @@
   ];
 
   networking.firewall.extraCommands = ''
-    # agent user egress policy: allow localhost + TCP to docker host helper IP, block everything else
+    # agent user egress policy: allow localhost + docker VM published port ranges, block everything else
     iptables -A OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT
-    iptables -A OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p tcp -j ACCEPT
+    iptables -A OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p tcp --dport 1024:65535 -j ACCEPT
+    iptables -A OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p udp --dport 1024:65535 -j ACCEPT
     iptables -A OUTPUT -m owner --uid-owner agent -j REJECT
 
     ip6tables -A OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT
@@ -53,7 +54,8 @@
 
   networking.firewall.extraStopCommands = ''
     iptables -D OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT 2>/dev/null || true
-    iptables -D OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p tcp -j ACCEPT 2>/dev/null || true
+    iptables -D OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p tcp --dport 1024:65535 -j ACCEPT 2>/dev/null || true
+    iptables -D OUTPUT -m owner --uid-owner agent -d 192.168.64.12 -p udp --dport 1024:65535 -j ACCEPT 2>/dev/null || true
     iptables -D OUTPUT -m owner --uid-owner agent -j REJECT 2>/dev/null || true
 
     ip6tables -D OUTPUT -m owner --uid-owner agent -o lo -j ACCEPT 2>/dev/null || true

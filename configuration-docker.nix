@@ -103,8 +103,14 @@ in
     allowedTCPPorts = [ 22 ];
     allowedTCPPortRanges = [
       {
-        from = 32768;
-        to = 60999;
+        from = 1024;
+        to = 65535;
+      }
+    ];
+    allowedUDPPortRanges = [
+      {
+        from = 1024;
+        to = 65535;
       }
     ];
     backend = "iptables";
