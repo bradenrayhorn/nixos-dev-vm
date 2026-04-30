@@ -110,7 +110,7 @@
     ];
   };
 
-  fileSystems."/home/user/utm" = {
+  fileSystems."/home/braden/utm" = {
     device = "/mnt/utm";
     fsType = "fuse.bindfs";
     options = [
