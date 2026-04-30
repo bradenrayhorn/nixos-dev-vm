@@ -113,6 +113,7 @@
   environment.systemPackages = with pkgs; [
     vim
     ghostty
+    bindfs
     (pkgs.writeShellScriptBin "nx-rebuild" ''
       set -e
       if [ "$(id -u)" -ne 0 ]; then
