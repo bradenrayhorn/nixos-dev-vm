@@ -98,6 +98,30 @@
     ];
   };
 
+  fileSystems."/mnt/utm" = {
+    device = "share";
+    fsType = "9p";
+    options = [
+      "trans=virtio"
+      "version=9p2000.L"
+      "rw"
+      "_netdev"
+      "nofail"
+    ];
+  };
+
+  fileSystems."/home/user/utm" = {
+    device = "/mnt/utm";
+    fsType = "fuse.bindfs";
+    options = [
+      "map=502/1001:@20/@998"
+      "_netdev"
+      "nofail"
+    ];
+    # This ensures NixOS sets up the systemd dependency correctly
+    depends = [ "/mnt/utm" ];
+  };
+
   swapDevices = [
     { device = "/dev/disk/by-label/swap"; }
   ];
