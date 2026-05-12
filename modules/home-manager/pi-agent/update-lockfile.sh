@@ -6,7 +6,7 @@ set -euo pipefail
 
 VERSION="${1}"
 NAME="pi-coding-agent"
-SCOPE="@mariozechner"
+SCOPE="@earendil-works"
 URL="https://registry.npmjs.org/$SCOPE/$NAME/-/$NAME-$VERSION.tgz"
 
 DST=$(pwd)/package-lock.json
